@@ -268,10 +268,10 @@ public class EndToEndModelWoPreprocessing {
         }
 
 	boolean useBatch = false;
-//        int batchSize = Integer.parseInt(inst.batchsize);
-        int batchSize = 10;
-//        int numberOfRuns = Integer.parseInt(inst.numRuns);
-        int numberOfRuns = 1;
+	int batchSize = Integer.parseInt(inst.batchsize);
+        // int batchSize = 10;
+	int numberOfRuns = Integer.parseInt(inst.numRuns);
+        // int numberOfRuns = 1;
         String imgPath = inst.inputImagePath;
         String imgDir = inst.inputImageDir;
 
