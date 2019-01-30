@@ -33,7 +33,7 @@ if [ ! -d "$image_path" ]; then
   mkdir -p "$image_path"
 fi
 
-python download_gluoncv_pretrained_model.py --model resnet18_v1 --save-file $data_path/
+python $MXNET_ROOT/bin/download_gluoncv_pretrained_model.py --model resnet18_v1 --save-file $data_path/
 
 if [ ! -f "$data_path" ]; then
   # curl https://s3.us-east-2.amazonaws.com/scala-infer-models/resnet-18/resnet-18-symbol.json -o $data_path/resnet-18-symbol.json
