@@ -3,63 +3,11 @@ import sys
 sys.path.insert(0, '..')
 
 import argparse
-import collections
-import d2l
-import mxnet as mx
-from mxnet import gluon, init, nd
+from mxnet import gluon, init, nd, test_utils, cpu, gpu
 from mxnet.contrib import text
-from mxnet.gluon import data as gdata, loss as gloss, nn, rnn, utils as gutils
+from mxnet.gluon import data as gdata, loss as gloss, nn, rnn
 from mxnet.gluon.estimator import estimator as est
-import os
-import random
-import tarfile
-
-
-# Download data
-def download_imdb(data_dir='../data'):
-    url = ('http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz')
-    sha1 = '01ada507287d82875905620988597833ad4e0903'
-    fname = gutils.download(url, data_dir, sha1_hash=sha1)
-    with tarfile.open(fname, 'r') as f:
-        f.extractall(data_dir)
-
-
-def read_imdb(folder='train'):
-    data = []
-    for label in ['pos', 'neg']:
-        folder_name = os.path.join('../data/aclImdb/', folder, label)
-        for file in os.listdir(folder_name):
-            with open(os.path.join(folder_name, file), 'rb') as f:
-                review = f.read().decode('utf-8').replace('\n', '').lower()
-                data.append([review, 1 if label == 'pos' else 0])
-    random.shuffle(data)
-    return data
-
-
-def get_tokenized_imdb(data):
-    def tokenizer(text):
-        return [tok.lower() for tok in text.split(' ')]
-
-    return [tokenizer(review) for review, _ in data]
-
-
-def get_vocab_imdb(data):
-    tokenized_data = get_tokenized_imdb(data)
-    counter = collections.Counter([tk for st in tokenized_data for tk in st])
-    return text.vocab.Vocabulary(counter, min_freq=5)
-
-
-def preprocess_imdb(data, vocab):
-    # Make the length of each comment 500 by truncating or adding 0s
-    max_l = 500
-
-    def pad(x):
-        return x[:max_l] if len(x) > max_l else x + [0] * (max_l - len(x))
-
-    tokenized_data = get_tokenized_imdb(data)
-    features = nd.array([pad(vocab.to_indices(x)) for x in tokenized_data])
-    labels = nd.array([score for _, score in data])
-    return features, labels
+from utils import *
 
 
 # Model
@@ -106,7 +54,9 @@ if __name__ == '__main__':
                         help='whether to use GPU (default: False)')
     opt = parser.parse_args()
 
-    ctx = d2l.try_all_gpus() if opt.use_gpu else [mx.cpu()]
+    # ctx = mx.gpu() if mx.test_utils.list_gpus() else mx.cpu()
+    gpus = test_utils.list_gpus()
+    ctx = [gpu(i) for i in gpus] if len(gpus) > 0 else [cpu()]
 
     # data
     download_imdb()

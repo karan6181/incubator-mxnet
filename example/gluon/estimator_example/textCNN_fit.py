@@ -3,12 +3,11 @@ import sys
 sys.path.insert(0, '..')
 
 import argparse
-import d2l
-import mxnet as mx
-from mxnet import gluon, init, nd
+from mxnet import gluon, init, nd, test_utils, cpu, gpu
 from mxnet.contrib import text
 from mxnet.gluon import data as gdata, loss as gloss, nn
 from mxnet.gluon.estimator import estimator as est
+from utils import *
 
 
 def corr1d(X, K):
@@ -80,16 +79,18 @@ if __name__ == '__main__':
                         help='whether to use GPU (default: False)')
     opt = parser.parse_args()
 
-    ctx = d2l.try_all_gpus() if opt.use_gpu else [mx.cpu()]
+    # ctx = mx.gpu() if mx.test_utils.list_gpus() else mx.cpu()
+    gpus = test_utils.list_gpus()
+    ctx = [gpu(i) for i in gpus] if len(gpus) > 0 else [cpu()]
 
     # data
-    d2l.download_imdb()
-    train_data, test_data = d2l.read_imdb('train'), d2l.read_imdb('test')
-    vocab = d2l.get_vocab_imdb(train_data)
+    download_imdb()
+    train_data, test_data = read_imdb('train'), read_imdb('test')
+    vocab = get_vocab_imdb(train_data)
     train_iter = gdata.DataLoader(gdata.ArrayDataset(
-        *d2l.preprocess_imdb(train_data, vocab)), opt.batch_size, shuffle=True)
+        *preprocess_imdb(train_data, vocab)), opt.batch_size, shuffle=True)
     test_iter = gdata.DataLoader(gdata.ArrayDataset(
-        *d2l.preprocess_imdb(test_data, vocab)), opt.batch_size)
+        *preprocess_imdb(test_data, vocab)), opt.batch_size)
 
     # Initialize
     embed_size, kernel_sizes, nums_channels = 100, [3, 4, 5], [100, 100, 100]
