@@ -22,7 +22,7 @@
 
 import warnings
 
-from mxnet.gluon import loss as gloss
+from mxnet.gluon import data as gdata, loss as gloss
 from mxnet.metric import Accuracy
 from .event_handler import LoggingHandler
 from ... import *
@@ -123,8 +123,15 @@ class Estimator(object):
             verbose=1):
 
         # TODO: change the batch size code
-        if not batch_size:
-            batch_size = 32 * len(self.ctx)
+        if isinstance(train_data, gdata.DataLoader):
+            for data, label in train_data:
+                if not batch_size:
+                    batch_size = data.shape[0]
+                else:
+                    assert batch_size == data.shape[0], 'Batch size mismatch'
+                break
+        else:
+            raise TypeError('DataLoader must be of type<mxnet.gluon.data.dataloader.DataLoader>')
 
         event_handlers = event_handlers or []
         if not event_handlers:
