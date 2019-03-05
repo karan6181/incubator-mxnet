@@ -41,15 +41,13 @@ class BiRNN(nn.Block):
 if __name__ == '__main__':
 
     # Parse CLI arguments
-    parser = argparse.ArgumentParser(description='MXNet Gluon Text Sentiment Classification Example')
+    parser = argparse.ArgumentParser(description='MXNet Gluon Text Sentiment Classification Example using RNN')
     parser.add_argument('--batch-size', type=int, default=64,
                         help='batch size for training and testing (default: 64)')
     parser.add_argument('--epochs', type=int, default=5,
                         help='number of epochs to train (default: 5)')
     parser.add_argument('--lr', type=float, default=0.01,
                         help='learning rate (default: 0.01)')
-    parser.add_argument('--momentum', type=float, default=0.9,
-                        help='SGD momentum (default: 0.9)')
     parser.add_argument('--use-gpu', action='store_true', default=False,
                         help='whether to use GPU (default: False)')
     opt = parser.parse_args()
@@ -81,7 +79,6 @@ if __name__ == '__main__':
 
     glove_embedding = text.embedding.create(
         'glove', pretrained_file_name='glove.6B.100d.txt', vocabulary=vocab)
-
     net.embedding.weight.set_data(glove_embedding.idx_to_vec)
     net.embedding.collect_params().setattr('grad_req', 'null')
 
